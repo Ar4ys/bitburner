@@ -1,0 +1,12 @@
+[tools]
+node = "26"
+
+[env]
+_.path = ['{{config_root}}/node_modules/.bin']
+
+[tasks]
+watch = "tsup --watch"
+sync = "bitburner-filesync"
+
+[tasks.start]
+depends = ['watch', 'sync']
