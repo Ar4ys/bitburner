@@ -5,7 +5,7 @@ node = "26"
 _.path = ['{{config_root}}/node_modules/.bin']
 
 [tasks]
-watch = "tsdown --watch"
+watch = "node ./scripts/watch.ts"
 sync = "bitburner-filesync"
 
 [tasks.start]
