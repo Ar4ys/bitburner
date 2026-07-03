@@ -2,7 +2,7 @@
 
 My personal collection of TypeScript scripts for [Bitburner](https://bitburner-official.github.io/) — a programming-based incremental game where you write code to hack, automate, and progress through the game's world.
 
-Scripts are written in TypeScript, bundled with [tsup](https://tsup.egoist.dev/), and synced live into the game via the [bitburner-filesync](https://github.com/RyanWalker/bitburner-filesync).
+Scripts are written in TypeScript, bundled with [tsdown](https://tsdown.dev/), and synced live into the game via the [bitburner-filesync](https://github.com/RyanWalker/bitburner-filesync).
 
 ## 📁 Structure
 
@@ -17,7 +17,7 @@ Scripts are written in TypeScript, bundled with [tsup](https://tsup.egoist.dev/)
 ├── filesync.json            # Config for bitburner-filesync (Remote API sync)
 ├── mise.toml                # Task runner + Node version pinning (via mise)
 ├── tsconfig.json            # TypeScript config, incl. path aliases
-├── tsup.config.ts           # Build config — bundles bin/*.ts into dist/
+├── tsdown.config.ts           # Build config — bundles bin/*.ts into dist/
 └── package.json
 ```
 
@@ -41,14 +41,14 @@ mise run start
 
 `mise run start` runs both:
 
-- `watch` → `tsup --watch`, rebuilding `dist/` on file changes
+- `watch` → `tsdown --watch`, rebuilding `dist/` on file changes
 - `sync` → `bitburner-filesync`, pushing `dist/*.js` into the game over the Remote API (port `12525`) and keeping `NetscriptDefinitions.d.ts` up to date
 
 Once running, edit files in `bin/`/`lib/`, and changes will automatically rebuild and sync into your in-game home server.
 
 ## 🛠 Tooling
 
-- **[tsup](https://tsup.egoist.dev/)** — bundles each `bin/*.ts` entry into a standalone ESM file
+- **[tsdown](https://tsdown.dev/)** — bundles each `bin/*.ts` entry into a standalone ESM file
 - **[bitburner-filesync](https://www.npmjs.com/package/bitburner-filesync)** — syncs `dist/` into the game via Remote API
 - **[biome](https://biomejs.dev/)** — linting & formatting (tabs, double quotes, organized imports)
 - **[mise](https://mise.jdx.dev/)** — Node version pinning + task runner

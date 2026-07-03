@@ -1,9 +1,10 @@
-import { defineConfig } from "tsup";
+import { defineConfig } from "tsdown";
 
 export default defineConfig({
 	entry: ["bin/*.ts"],
-	splitting: false,
 	sourcemap: false,
 	clean: true,
 	format: "esm",
+	dts: false,
+	target: false,
 });
