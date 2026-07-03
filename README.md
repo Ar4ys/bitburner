@@ -1,102 +1,59 @@
-# Typescript template for Bitburner's Remote File API
+# bitburner
 
-The official template for synchronizing Typescript/Javascript from your computer to the game.
+My personal collection of TypeScript scripts for [Bitburner](https://bitburner-official.github.io/) — a programming-based incremental game where you write code to hack, automate, and progress through the game's world.
 
-[Step by step install](BeginnersGuide.md)
+Scripts are written in TypeScript, bundled with [tsup](https://tsup.egoist.dev/), and synced live into the game via the [bitburner-filesync](https://github.com/RyanWalker/bitburner-filesync).
 
-[Docker install guide](DockerGuide.md) (optional) 
+## 📁 Structure
 
-[Learn more about Typescript](https://www.typescriptlang.org/docs/)
-
-## About
-
-This template uses the Typescript compiler and the Remote File API system to synchronize Typescript to your game.
-Due to the usage of the RFA system, it works with Web and Electron (Steam) versions of the game.
-
-## Prerequisites
-
-[Node.js](https://nodejs.org/en/download/) is needed for compiling typescript and installing dependencies.
-
-[See here for step by step installation](BeginnersGuide.md) if you'd like help with installing Node and/or connecting to the game.
-
-Alternatively see [Docker install guide](DockerGuide.md) (optional) that installs nodejs and the Remote File API in an isolated container.
-
-## Quick start
-
-Download the template to your computer and install everything it requires:
 ```
-git clone https://github.com/bitburner-official/typescript-template
-cd typescript-template
-npm i
+.
+├── bin/                     # Entry point scripts — each file here becomes a runnable in-game script
+│   └── template.ts
+├── lib/                     # Shared library code, imported by scripts in bin/
+│   └── react.ts
+├── dist/                    # Compiled JS output, synced into the game (gitignored)
+├── biome.json               # Biome config (linting + formatting)
+├── filesync.json            # Config for bitburner-filesync (Remote API sync)
+├── mise.toml                # Task runner + Node version pinning (via mise)
+├── tsconfig.json            # TypeScript config, incl. path aliases
+├── tsup.config.ts           # Build config — bundles bin/*.ts into dist/
+└── package.json
 ```
 
-### How to use this template
+### How it fits together
 
-Write all your typescript source code in the `/src` directory
+- **`bin/*.ts`** are treated as individual entry points and compiled 1:1 into `dist/*.js`, which are the scripts you actually `run` in-game.
+- **`lib/`** holds shared code that gets imported into `bin/` scripts — useful for anything reusable, like the React helper that binds to the game's injected `window.React` / `window.ReactDOM`.
+- **`NetscriptDefinitions.d.ts`** (gitignored, generated) provides the `@ns` type import used for the `NS` type — kept in sync automatically by [bitburner-filesync](https://github.com/RyanWalker/bitburner-filesync).
+- **Path aliases** are set up in `tsconfig.json`:
+  - `@ns` → Netscript type definitions
+  - `@/*` → `lib/*`
 
-To autocompile and send changed files as you save, run `npm run watch` in a terminal.
-Have it running in the background so that it all happens automatically.
+## 🚀 Usage
 
-For Bitburner to receive any files, you need to enter the port `npm run watch` logs to the terminal
-in the Remote API section of the game settings, and press the connect button.
+This project uses [mise](https://mise.jdx.dev/) to manage the Node version and run tasks, and [pnpm](https://pnpm.io/) for dependencies.
 
-[See here for step by step installation](BeginnersGuide.md) if you'd like help with installing Node and/or connecting to the game.
-
-Alternatively see [Docker install guide](DockerGuide.md) (optional) that installs nodejs and the Remote File API in an isolated container.
-
-## Advanced
-### Imports
-
-To ensure both the game and typescript have no issues with import paths, your import statements should follow a few formatting rules:
-
-- Paths must be absolute from the root of `src/`, which will be equivalent to the root directory of your home drive
-- Paths must contain no leading slash
-- Paths must end with no file extension
-
-#### Examples:
-
-To import `helperFunction` from the file `helpers.ts` located in the directory `src/lib/`:
-
-```js
-import { helperFunction } from "lib/helpers";
+```bash
+pnpm install
+mise run start
 ```
 
-To import all functions from the file `helpers.ts` located in the `src/lib/` directory as the namespace `helpers`:
+`mise run start` runs both:
 
-```js
-import * as helpers from "lib/helpers";
-```
+- `watch` → `tsup --watch`, rebuilding `dist/` on file changes
+- `sync` → `bitburner-filesync`, pushing `dist/*.js` into the game over the Remote API (port `12525`) and keeping `NetscriptDefinitions.d.ts` up to date
 
-To import `someFunction` from the file `main.ts` located in the `src/` directory:
+Once running, edit files in `bin/`/`lib/`, and changes will automatically rebuild and sync into your in-game home server.
 
-```js
-import { someFunction } from "main";
-```
+## 🛠 Tooling
 
-### Debugging
+- **[tsup](https://tsup.egoist.dev/)** — bundles each `bin/*.ts` entry into a standalone ESM file
+- **[bitburner-filesync](https://www.npmjs.com/package/bitburner-filesync)** — syncs `dist/` into the game via Remote API
+- **[biome](https://biomejs.dev/)** — linting & formatting (tabs, double quotes, organized imports)
+- **[mise](https://mise.jdx.dev/)** — Node version pinning + task runner
+- **[pnpm](https://pnpm.io/)** — Package manager
 
-For debugging bitburner on Steam you will need to enable a remote debugging port. This can be done by rightclicking bitburner in your Steam library and selecting properties. There you need to add `--remote-debugging-port=9222` [Thanks @DarkMio]
+## 📄 License
 
-### Using React
-Some `ns` functions, like [`ns.printRaw()`](https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.ns.printraw.md) allows you to render React components into the game interface. 
-
-The game already exposes the `React` and `ReactDOM` objects globally, but in order to work with strongly typed versions in `.ts` files, you can use the included typings. To do this, use the following import:
-
-`import React, { ReactDOM } from '@react'`
-
-Support for jsx is also included, so if you use the `.tsx` file ending, you can do something like:
-
-```ts
-import { NS } from '@ns';
-import React from '@react';
-
-interface IMyContentProps {
-  name: string
-}
-
-const MyContent = ({name}: IMyContentProps) => <span>Hello {name}</span>;
-
-export default async function main(ns: NS){
-  ns.printRaw(<MyContent name="Your name"></MyContent>);
-}
-```
+[MIT](./LICENSE) © Ar4ys
